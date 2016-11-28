@@ -69,8 +69,6 @@ func ScrapeEngineInnodbStatus(db *sql.DB, ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				value,
 			)
-
-			log.Infoln("Transaction counter", value);
 		}
 	}
 
