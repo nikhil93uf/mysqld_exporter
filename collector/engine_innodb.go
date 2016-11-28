@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 const (
@@ -38,6 +39,7 @@ func ScrapeEngineInnodbStatus(db *sql.DB, ch chan<- prometheus.Metric) error {
 	// 0 read views open inside InnoDB
 	rQueries, _ := regexp.Compile(`(\d+) queries inside InnoDB, (\d+) queries in queue`)
 	rViews, _ := regexp.Compile(`(\d+) read views open inside InnoDB`)
+	rTransactions, _ := regexp.Compile(`Trx id counter (\d+)`);
 
 	for _, line := range strings.Split(statusCol, "\n") {
 		if data := rQueries.FindStringSubmatch(line); data != nil {
@@ -60,6 +62,15 @@ func ScrapeEngineInnodbStatus(db *sql.DB, ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				value,
 			)
+		} else if data := rTransactions.FindStringSubmatch(line); data != nil {
+			value, _ := strconv.ParseFloat(data[1], 64)
+			ch <- prometheus.MustNewConstMetric(
+				newDesc(innodb, "transaction_counter_innodb", "Transaction counter for InnoDB"),
+				prometheus.GaugeValue,
+				value,
+			)
+
+			log.Infoln("Transaction counter", value);
 		}
 	}
 

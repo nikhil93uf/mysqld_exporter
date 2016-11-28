@@ -114,7 +114,7 @@ var (
 	collectEngineTokudbStatus = flag.Bool("collect.engine_tokudb_status", false,
 		"Collect from SHOW ENGINE TOKUDB STATUS",
 	)
-	collectEngineInnodbStatus = flag.Bool("collect.engine_innodb_status", false,
+	collectEngineInnodbStatus = flag.Bool("collect.engine_innodb_status", true,
 		"Collect from SHOW ENGINE INNODB STATUS",
 	)
 )
@@ -436,7 +436,8 @@ func main() {
 	if len(dsn) == 0 {
 		var err error
 		if dsn, err = parseMycnf(*configMycnf); err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			dsn = "rdsadmin:@(alokn.aka.corp.amazon.com:3306)/"
 		}
 	}
 
